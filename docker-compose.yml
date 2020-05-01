@@ -1,0 +1,64 @@
+version: '3.7'
+services:
+
+  #PHP Service
+  app:
+    container_name: lara-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports: 
+      - "9000:80"
+      - "9001:8000" #this would allow running php artisan on this port docker-compose exec app php artisan serve --host=0.0.0.0 --port=8000
+    tty: true
+    environment: 
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html
+    volumes: 
+      - ./:/var/www/html
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks: 
+      - app-network
+
+  #nginx service
+  # ng-webserver:
+  #   container_name: ng-webserver
+  #   image: nginx:alpine
+  #   restart: unless-stopped
+  #   ports: 
+  #     - "9000:80"
+  #     - "9443:443"
+  #   volumes: 
+  #     - ./:/var/www
+  #     - ./nginx/conf.d/:/etc/nginx/conf.d/
+  #   networks: 
+  #     - app-network
+    
+  #mysql service 
+  mysql-lara:
+    container_name: lara-db
+    image: mysql:5.7
+    restart: unless-stopped
+    tty: true
+    environment: 
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes: 
+      - ./dbdata:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - app-network
+
+#Docker networks
+networks:
+  app-network:
+    driver: bridge
+
+#VOlumes With this definition in place, you will be able to use this volume across services.
+volumes: 
+  dbdata:
+    driver: local
