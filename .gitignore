@@ -15,6 +15,9 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+#docker db data
+/dbdata/
+
 # Laravel 4 specific
 bootstrap/compiled.php
 app/storage/
